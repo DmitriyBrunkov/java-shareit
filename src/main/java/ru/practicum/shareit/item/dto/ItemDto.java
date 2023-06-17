@@ -2,16 +2,24 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.item.ItemValidationGroups.Add;
 
-/**
- * TODO Sprint add-controllers.
- */
+import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Data
 @AllArgsConstructor
 public class ItemDto {
+    private long id;
+    @NotBlank(groups = Add.class)
     private String name;
+    @NotBlank(groups = Add.class)
     private String description;
-    private boolean available;
-    private Long request;
+    @NotNull(groups = Add.class)
+    @AssertTrue(groups = Add.class)
+    private Boolean available;
+    private Long owner;
+    private ItemRequest request;
 }

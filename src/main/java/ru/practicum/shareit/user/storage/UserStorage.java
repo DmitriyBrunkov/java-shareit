@@ -17,4 +17,6 @@ public interface UserStorage {
     void update(User user) throws UserNotFoundException, EmailNotUnique;
 
     void delete(Long id) throws UserNotFoundException;
+
+    boolean exist(Long id);
 }
