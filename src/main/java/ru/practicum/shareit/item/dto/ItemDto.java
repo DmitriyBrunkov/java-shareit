@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.item.ItemValidationGroups.Add;
 
 import javax.validation.constraints.AssertTrue;
@@ -21,5 +20,4 @@ public class ItemDto {
     @AssertTrue(groups = Add.class)
     private Boolean available;
     private Long owner;
-    private ItemRequest request;
 }

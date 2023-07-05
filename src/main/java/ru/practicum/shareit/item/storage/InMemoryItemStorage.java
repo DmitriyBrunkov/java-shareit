@@ -18,10 +18,9 @@ import java.util.stream.Collectors;
 @Component("InMemoryItemStorage")
 public class InMemoryItemStorage implements ItemStorage {
 
-    private final UserStorage userStorage;
-
-    private final Map<Long, Item> items = new HashMap<>();
     private static long availableId = 0;
+    private final UserStorage userStorage;
+    private final Map<Long, Item> items = new HashMap<>();
 
     @Autowired
     public InMemoryItemStorage(UserStorage userStorage) {
@@ -49,14 +48,14 @@ public class InMemoryItemStorage implements ItemStorage {
         if (searchString == null || searchString.isBlank()) {
             return new ArrayList<>();
         }
-        return items.values().stream().filter(item -> (item.getName().toLowerCase().contains(searchString.toLowerCase())
-                || item.getDescription().toLowerCase().contains(searchString.toLowerCase()))
-                && item.getAvailable()).collect(Collectors.toList());
+        return items.values().stream().filter(item -> (item.getName().toLowerCase()
+                .contains(searchString.toLowerCase()) || item.getDescription().toLowerCase()
+                .contains(searchString.toLowerCase())) && item.getAvailable()).collect(Collectors.toList());
     }
 
     @Override
     public void add(Item item) throws OwnerNotFoundException {
-        if (!userStorage.exist(item.getOwner())) {
+        if (!userStorage.exist(item.getOwner().getId())) {
             throw new OwnerNotFoundException("Owner " + item.getOwner() + " doesn't exist");
         }
         item.setId(getAvailableId());
@@ -69,10 +68,9 @@ public class InMemoryItemStorage implements ItemStorage {
             throw new ItemNotFoundException("Item " + item.getId() + " not found");
         }
         if (!item.getOwner().equals(items.get(item.getId()).getOwner())) {
-            throw new AccessViolationException("Access from user " + item.getOwner() +
-                    " to item " + item.getId() + " not granted");
+            throw new AccessViolationException("Access from user " + item.getOwner() + " to item " + item.getId() + " not granted");
         }
-        if (!userStorage.exist(item.getOwner())) {
+        if (!userStorage.exist(item.getOwner().getId())) {
             throw new OwnerNotFoundException("Owner " + item.getOwner() + " doesn't exist");
         }
         if (!(item.getName() == null)) {

@@ -1,48 +1,55 @@
 package ru.practicum.shareit.user.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.exception.EmailNotUnique;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.user.repository.UserRepository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class UserServiceImpl implements UserService {
 
-    private final UserStorage userStorage;
-
-    @Autowired
-    public UserServiceImpl(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
+    private final UserRepository userRepository;
 
     @Override
     public List<User> getAll() {
-        return userStorage.getAll();
+        return userRepository.findAll();
     }
 
     @Override
     public User get(Long id) throws UserNotFoundException {
-        return userStorage.get(id);
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User " + id + " not found"));
     }
 
     @Override
     public User add(User user) throws UserNotFoundException, EmailNotUnique {
-        userStorage.add(user);
-        return userStorage.get(user.getId());
+        return userRepository.save(user);
     }
 
     @Override
     public User update(User user) throws UserNotFoundException, EmailNotUnique {
-        userStorage.update(user);
-        return userStorage.get(user.getId());
+        User originalUser = userRepository.findById(user.getId()).orElseThrow(() -> new UserNotFoundException("User "
+                + user.getId() + " not found"));
+        if (!(user.getName() == null)) {
+            originalUser.setName(user.getName());
+        }
+        if (!(user.getEmail() == null)) {
+            originalUser.setEmail(user.getEmail());
+        }
+        return userRepository.save(originalUser);
     }
 
     @Override
     public void delete(Long id) throws UserNotFoundException {
-        userStorage.delete(id);
+        if (!userRepository.existsById(id)) {
+            throw new UserNotFoundException("User " + id + " not found");
+        }
+        userRepository.deleteById(id);
     }
 }

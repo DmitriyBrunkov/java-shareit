@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service;
 
+import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.item.exception.AccessViolationException;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.exception.OwnerNotFoundException;
@@ -18,4 +19,10 @@ public interface ItemService {
     Item add(Item item) throws ItemNotFoundException, UserNotFoundException, OwnerNotFoundException;
 
     Item update(Item item) throws AccessViolationException, OwnerNotFoundException, ItemNotFoundException;
+
+    boolean canUserComment(Long userId, Long itemId);
+
+    Comment addComment(Comment comment);
+
+    List<Comment> getCommentsByItemId(Long itemId);
 }
