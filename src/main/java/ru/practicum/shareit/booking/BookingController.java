@@ -146,6 +146,6 @@ public class BookingController {
     }
 
     private boolean isValidInterval(LocalDateTime start, LocalDateTime end) {
-        return start.isAfter(LocalDateTime.now()) & end.isAfter(LocalDateTime.now()) & end.isAfter(start);
+        return start.isAfter(LocalDateTime.now()) && end.isAfter(LocalDateTime.now()) && end.isAfter(start);
     }
 }

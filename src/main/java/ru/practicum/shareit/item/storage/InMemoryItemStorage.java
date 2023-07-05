@@ -32,7 +32,7 @@ public class InMemoryItemStorage implements ItemStorage {
         if (!(userStorage.exist(userId))) {
             throw new UserNotFoundException("User " + userId + " not found");
         }
-        return items.values().stream().filter(i -> i.getOwner().equals(userId)).collect(Collectors.toList());
+        return items.values().stream().filter(i -> i.getOwner().getId() == userId).collect(Collectors.toList());
     }
 
     @Override
