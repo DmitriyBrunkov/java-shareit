@@ -41,6 +41,7 @@ public class ItemController {
     @GetMapping("/{id}")
     public ItemWithBookingDto get(@RequestHeader("X-Sharer-User-Id") Long userId,
                                   @PathVariable("id") Long id) throws ItemNotFoundException {
+        log.info(this.getClass().getSimpleName() + ": GET: userId: " + userId + " itemId: " + id);
         ItemWithBookingDto itemWithBookingDto = ItemMapper.toItemWithBookingDto(itemService.get(id),
                 itemService.getCommentsByItemId(id).stream()
                         .map(CommentMapper::toCommentDto).collect(Collectors.toList()));
@@ -60,6 +61,7 @@ public class ItemController {
     @GetMapping
     public List<ItemWithBookingDto> getUserItems(@RequestHeader("X-Sharer-User-Id") Long userId)
             throws UserNotFoundException {
+        log.info(this.getClass().getSimpleName() + ": GET: userId: " + userId);
         return itemService.getUserItems(userId).stream().map(item -> {
             ItemWithBookingDto itemWithBookingDto = ItemMapper.toItemWithBookingDto(item,
                     itemService.getCommentsByItemId(item.getId()).stream()
@@ -79,12 +81,14 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDto> search(@RequestParam(name = "text") String searchString) {
+        log.info(this.getClass().getSimpleName() + ": GET: text: " + searchString);
         return itemService.search(searchString).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
     }
 
     @PostMapping
     public ItemDto add(@RequestHeader("X-Sharer-User-Id") Long userId, @RequestBody @Validated(Add.class) ItemDto itemDto)
             throws ItemNotFoundException, UserNotFoundException, OwnerNotFoundException {
+        log.info(this.getClass().getSimpleName() + ": POST: userId: " + userId + " item: " + itemDto);
         itemDto.setOwner(userId);
         User user = userService.get(userId);
         return ItemMapper.toItemDto(itemService.add(ItemMapper.toItem(itemDto, user)));
@@ -94,6 +98,7 @@ public class ItemController {
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable("id") Long id,
                           @RequestBody @Validated ItemDto itemDto)
             throws AccessViolationException, OwnerNotFoundException, ItemNotFoundException, UserNotFoundException {
+        log.info(this.getClass().getSimpleName() + ": PATCH: userId: " + userId + " itemId: " + id + " item: " + itemDto);
         itemDto.setId(id);
         itemDto.setOwner(userId);
         User user = userService.get(userId);
@@ -105,6 +110,8 @@ public class ItemController {
                                  @PathVariable("itemId") Long itemId, @RequestBody CommentDto commentDto)
             throws ItemNotFoundException, UserNotFoundException, CommentAccessViolationException,
             CommentTextValidationException {
+        log.info(this.getClass().getSimpleName() + ": POST: userId: " + userId + " itemId: " + itemId + " comment: "
+                + commentDto);
         if (!itemService.canUserComment(userId, itemId)) {
             throw new CommentAccessViolationException("Only booker can comment");
         }

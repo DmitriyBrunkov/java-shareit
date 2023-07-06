@@ -41,6 +41,7 @@ public class BookingController {
     public BookingDto getBookingById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                      @PathVariable("bookingId") Long bookingId)
             throws BookingNotFound, ItemNotFoundException, AccessViolationException {
+        log.info(this.getClass().getSimpleName() + ": GET: userId: " + userId + " bookingId: " + bookingId);
         if (bookingService.getById(bookingId).getBooker().getId() != userId) {
             if (itemService.get(bookingService.getById(bookingId).getItem().getId()).getOwner().getId() != userId) {
                 throw new AccessViolationException("Only owner or booker can access booking");
@@ -53,6 +54,7 @@ public class BookingController {
     public List<BookingDto> getListOfUserBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                   @RequestParam(defaultValue = "ALL") BookingState state)
             throws UserNotFoundException {
+        log.info(this.getClass().getSimpleName() + ": GET: userId: " + userId + " state: " + state);
         userService.get(userId);
         switch (state) {
             case ALL:
@@ -81,6 +83,7 @@ public class BookingController {
     List<BookingDto> getListOfOwnerBookings(@RequestHeader("X-Sharer-User-Id") Long ownerId,
                                             @RequestParam(defaultValue = "ALL") BookingState state)
             throws UserNotFoundException {
+        log.info(this.getClass().getSimpleName() + ": GET: userId: " + ownerId + " state: " + state);
         switch (state) {
             case ALL:
                 return bookingService.getAllByItemList(itemService.getUserItems(ownerId)).stream()
@@ -109,6 +112,7 @@ public class BookingController {
                              @RequestBody @Validated BookingShortDto bookingShortDto)
             throws ItemNotFoundException, UserNotFoundException, BookingItemUnavailable,
             BookingIntervalInvalid, BookingAccessException {
+        log.info(this.getClass().getSimpleName() + ": POST: userId: " + userId + " booking: " + bookingShortDto);
         bookingShortDto.setStatus(BookingStatus.WAITING);
         Item item = itemService.get(bookingShortDto.getItemId());
         User user = userService.get(userId);
@@ -130,6 +134,8 @@ public class BookingController {
                              @RequestParam boolean approved)
             throws ItemNotFoundException, AccessViolationException, BookingNotFound,
             BookingStatusException, BookingAccessException {
+        log.info(this.getClass().getSimpleName() + ": PATCH: userId: " + userId + " bookingId: " + bookingId + " approved: "
+                + approved);
         if (itemService.get(bookingService.getById(bookingId).getItem().getId()).getOwner().getId() != userId) {
             throw new AccessViolationException("Only owner can can control booking");
         }
