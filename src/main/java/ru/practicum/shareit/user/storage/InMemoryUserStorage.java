@@ -15,9 +15,9 @@ import java.util.Map;
 @Component("InMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
 
+    private static long availableId = 0;
     private final Map<Long, User> users = new HashMap<>();
     private final Map<String, User> emails = new HashMap<>();
-    private static long availableId = 0;
 
     @Override
     public List<User> getAll() {
