@@ -1,7 +1,8 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingStatus;
@@ -20,7 +21,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -30,6 +30,14 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+
+    @Override
+    public List<Item> getUserItems(Long userId, int from, int size) throws UserNotFoundException {
+        return itemRepository.findItemsByOwner(userRepository.findById(userId)
+                        .orElseThrow(() -> new UserNotFoundException("User " + userId + " not found")),
+                PageRequest.of(from > 0 ? from / size : 0, size,
+                        Sort.by("id").descending())).toList();
+    }
 
     @Override
     public List<Item> getUserItems(Long userId) throws UserNotFoundException {
@@ -43,12 +51,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> search(String searchString) {
+    public List<Item> search(String searchString, int from, int size) {
         if (searchString == null || searchString.isBlank()) {
             return new ArrayList<>();
         }
         return itemRepository.findItemsByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndAvailable(searchString,
-                searchString, true);
+                searchString, true, PageRequest.of(from > 0 ? from / size : 0, size,
+                        Sort.by("id").ascending())).toList();
     }
 
     @Override
@@ -64,10 +73,10 @@ public class ItemServiceImpl implements ItemService {
         Item originalItem = itemRepository.findById(item.getId())
                 .orElseThrow(() -> new ItemNotFoundException("Item " + item.getId() + " not found"));
         if (!userRepository.existsById(item.getOwner().getId())) {
-            throw new OwnerNotFoundException("Owner " + item.getOwner() + " doesn't exist");
+            throw new OwnerNotFoundException("Owner " + item.getOwner().getId() + " doesn't exist");
         }
         if (!item.getOwner().equals(originalItem.getOwner())) {
-            throw new AccessViolationException("Access from user " + item.getOwner() + " to item "
+            throw new AccessViolationException("Access from user " + item.getOwner().getId() + " to item "
                     + item.getId() + " not granted");
         }
         if (!(item.getName() == null)) {
@@ -96,5 +105,15 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<Comment> getCommentsByItemId(Long itemId) {
         return commentRepository.findCommentsByItem_Id(itemId);
+    }
+
+    @Override
+    public List<Item> getItemsByRequestId(Long requestId) {
+        return itemRepository.findItemsByRequest_Id(requestId);
+    }
+
+    @Override
+    public List<Item> getRequestedItems() {
+        return itemRepository.findItemsByRequestIsNotNull();
     }
 }

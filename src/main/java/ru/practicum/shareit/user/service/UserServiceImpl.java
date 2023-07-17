@@ -2,7 +2,6 @@ package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.user.exception.EmailNotUnique;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -28,14 +27,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User add(User user) throws UserNotFoundException, EmailNotUnique {
+    public User add(User user) throws UserNotFoundException {
         return userRepository.save(user);
     }
 
     @Override
-    public User update(User user) throws UserNotFoundException, EmailNotUnique {
-        User originalUser = userRepository.findById(user.getId()).orElseThrow(() -> new UserNotFoundException("User "
-                + user.getId() + " not found"));
+    public User update(User user) throws UserNotFoundException {
+        User originalUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new UserNotFoundException("User " + user.getId() + " not found"));
         if (!(user.getName() == null)) {
             originalUser.setName(user.getName());
         }
@@ -51,5 +50,10 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException("User " + id + " not found");
         }
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public boolean exist(Long id) {
+        return userRepository.existsById(id);
     }
 }
