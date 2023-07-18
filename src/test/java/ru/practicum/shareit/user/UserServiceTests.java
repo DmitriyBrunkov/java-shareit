@@ -18,9 +18,11 @@ public class UserServiceTests {
     @Autowired
     UserRepository userRepository;
 
+    User originalUser = new User(1, "test_name", "test@test.ru");
+
+
     @Test
-    void testUserUpdateOnlyName() throws UserNotFoundException {
-        User originalUser = new User(1, "test_name", "test@test.ru");
+    void userUpdateOnlyNameTest() throws UserNotFoundException {
         userRepository.save(originalUser);
         User updatedUser = new User(1, "new_name", null);
         User resultUser = userService.update(updatedUser);
@@ -28,8 +30,7 @@ public class UserServiceTests {
     }
 
     @Test
-    void testUserUpdateOnlyEmail() throws UserNotFoundException {
-        User originalUser = new User(1, "test_name", "test@test.ru");
+    void userUpdateOnlyEmailTest() throws UserNotFoundException {
         userRepository.save(originalUser);
         User updatedUser = new User(1, null, "new@new.ru");
         User resultUser = userService.update(updatedUser);
@@ -37,8 +38,7 @@ public class UserServiceTests {
     }
 
     @Test
-    void testUserUpdate() throws UserNotFoundException {
-        User originalUser = new User(1, "test_name", "test@test.ru");
+    void userUpdateTest() throws UserNotFoundException {
         userRepository.save(originalUser);
         User updatedUser = new User(1, "new_name", "new@new.ru");
         User resultUser = userService.update(updatedUser);
@@ -46,17 +46,35 @@ public class UserServiceTests {
     }
 
     @Test
-    void testUserUpdateThrowsUserNotFoundException() {
-        User originalUser = new User(99, "test_name", "test@test.ru");
+    void userUpdateThrowsUserNotFoundExceptionTest() {
+        originalUser.setId(99);
         final UserNotFoundException exception = Assertions.assertThrows(UserNotFoundException.class,
                 () -> userService.update(originalUser));
         Assertions.assertEquals("User 99 not found", exception.getMessage());
     }
 
     @Test
-    void testUserDeleteThrowUserNotFoundException() {
+    void userDeleteThrowUserNotFoundExceptionTest() {
         final UserNotFoundException exception = Assertions.assertThrows(UserNotFoundException.class,
                 () -> userService.delete(99L));
         Assertions.assertEquals("User 99 not found", exception.getMessage());
+    }
+
+    @Test
+    void getAllTest() throws Exception {
+        userService.add(originalUser);
+        Assertions.assertTrue(userService.getAll().contains(originalUser));
+    }
+
+    @Test
+    void getTest() throws Exception {
+        userService.add(originalUser);
+        Assertions.assertEquals(originalUser, userService.get(1L));
+    }
+
+    @Test
+    void existTest() throws Exception {
+        userService.add(originalUser);
+        Assertions.assertTrue(userService.exist(1L));
     }
 }

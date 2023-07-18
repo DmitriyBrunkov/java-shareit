@@ -38,7 +38,7 @@ public class UserControllerTests {
     private MockMvc mvc;
 
     @Test
-    void getAllUsers() throws Exception {
+    void getAllUsersTest() throws Exception {
         Mockito.when(userService.getAll()).thenReturn(List.of(user, secondUser));
         mvc.perform(get("/users")
                         .content(mapper.writeValueAsString(List.of(userDto, secondUserDto)))
@@ -55,7 +55,7 @@ public class UserControllerTests {
     }
 
     @Test
-    void getUserById() throws Exception {
+    void getUserByIdTest() throws Exception {
         Mockito.when(userService.get(Mockito.anyLong())).thenReturn(user);
         mvc.perform(get("/users/1")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -68,7 +68,7 @@ public class UserControllerTests {
     }
 
     @Test
-    void saveNewUser() throws Exception {
+    void saveNewUserTest() throws Exception {
         Mockito.when(userService.add(Mockito.any(User.class))).thenReturn(user);
         mvc.perform(post("/users")
                         .content(mapper.writeValueAsString(userDto))
@@ -82,7 +82,7 @@ public class UserControllerTests {
     }
 
     @Test
-    void updateUser() throws Exception {
+    void updateUserTest() throws Exception {
         Mockito.when(userService.update(Mockito.any(User.class))).thenReturn(user);
         mvc.perform(patch("/users/1")
                         .content(mapper.writeValueAsString(userDto))
@@ -96,7 +96,7 @@ public class UserControllerTests {
     }
 
     @Test
-    void deleteUser() throws Exception {
+    void deleteUserTest() throws Exception {
         Mockito.doNothing().when(userService);
         mvc.perform(delete("/users/1")
                         .characterEncoding(StandardCharsets.UTF_8)

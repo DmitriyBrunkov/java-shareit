@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -20,6 +22,7 @@ public class ItemRequest {
     private long id;
     private String description;
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User requestor;
     @CreationTimestamp
     private LocalDateTime created;

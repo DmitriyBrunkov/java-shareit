@@ -54,7 +54,7 @@ public class ItemRequestControllerTests {
     private MockMvc mvc;
 
     @Test
-    void add() throws Exception {
+    void addTest() throws Exception {
         Mockito.when(userService.get(Mockito.anyLong())).thenReturn(user);
         Mockito.when(itemRequestService.add(Mockito.any(ItemRequest.class))).thenReturn(itemRequest);
         mvc.perform(post("/requests")
@@ -70,7 +70,7 @@ public class ItemRequestControllerTests {
     }
 
     @Test
-    void getById() throws Exception {
+    void getByIdTest() throws Exception {
         Mockito.when(userService.exist(Mockito.anyLong())).thenReturn(true);
         Mockito.when(itemRequestService.exist(Mockito.anyLong())).thenReturn(true);
         Mockito.when(itemRequestService.getById(Mockito.anyLong())).thenReturn(itemRequest);
@@ -86,7 +86,7 @@ public class ItemRequestControllerTests {
     }
 
     @Test
-    void getAll() throws Exception {
+    void getAllTest() throws Exception {
         Mockito.when(itemService.getRequestedItems()).thenReturn(List.of(item));
         Mockito.when(itemRequestService.getListOfAll(Mockito.anyInt(), Mockito.anyInt())).thenReturn(List.of(itemRequest));
         Mockito.when(itemService.getItemsByRequestId(Mockito.anyLong())).thenReturn(List.of(item));
@@ -100,5 +100,36 @@ public class ItemRequestControllerTests {
                 .andExpect(jsonPath("$[0].description", is(itemRequestWithItemDto.getDescription())))
                 .andExpect(jsonPath("$[0].created", is(itemRequestWithItemDto.getCreated().toString())))
                 .andExpect(jsonPath("$[0].items[0].id", is(itemRequestWithItemDto.getItems().get(0).getId()), Long.class));
+    }
+
+    @Test
+    void getAllByRequestorTest() throws Exception {
+        Mockito.when(userService.exist(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(itemRequestService.getListByRequestorId(Mockito.anyLong())).thenReturn(List.of(itemRequest));
+        Mockito.when(itemService.getItemsByRequestId(Mockito.anyLong())).thenReturn(List.of(item));
+        mvc.perform(get("/requests")
+                        .header("X-Sharer-User-Id", 1)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id", is(itemRequestWithItemDto.getId()), Long.class))
+                .andExpect(jsonPath("$[0].description", is(itemRequestWithItemDto.getDescription())))
+                .andExpect(jsonPath("$[0].created", is(itemRequestWithItemDto.getCreated().toString())))
+                .andExpect(jsonPath("$[0].items[0].id", is(itemRequestWithItemDto.getItems().get(0).getId()), Long.class));
+    }
+
+    @Test
+    void itemRequestControllerThrowsItemRequestNotFoundExceptionTest() throws Exception {
+        Mockito.when(userService.exist(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(itemRequestService.exist(Mockito.anyLong())).thenReturn(false);
+        Mockito.when(itemRequestService.getById(Mockito.anyLong())).thenReturn(itemRequest);
+        mvc.perform(get("/requests/1")
+                        .header("X-Sharer-User-Id", 1)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error", is("Item Request 1 not found")));
     }
 }

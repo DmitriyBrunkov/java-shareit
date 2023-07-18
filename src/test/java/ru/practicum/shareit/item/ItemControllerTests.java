@@ -72,7 +72,7 @@ public class ItemControllerTests {
     private MockMvc mvc;
 
     @Test
-    void getItemById() throws Exception {
+    void getItemByIdTest() throws Exception {
         Mockito.when(itemService.get(Mockito.anyLong())).thenReturn(item);
         Mockito.when(itemService.getCommentsByItemId(Mockito.anyLong())).thenReturn(List.of(comment));
         Mockito.doReturn(booking).when(bookingService).getLastBookingByItem(Mockito.anyLong());
@@ -93,7 +93,7 @@ public class ItemControllerTests {
     }
 
     @Test
-    void getUserItems() throws Exception {
+    void getUserItemsTest() throws Exception {
         Mockito.when(itemService.getUserItems(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt()))
                 .thenReturn(List.of(item));
         Mockito.when(itemService.getCommentsByItemId(Mockito.anyLong())).thenReturn(List.of(comment));
@@ -115,7 +115,7 @@ public class ItemControllerTests {
     }
 
     @Test
-    void search() throws Exception {
+    void searchTest() throws Exception {
         Mockito.when(itemService.search(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt()))
                 .thenReturn(List.of(item));
         mvc.perform(get("/items/search")
@@ -133,7 +133,7 @@ public class ItemControllerTests {
     }
 
     @Test
-    void add() throws Exception {
+    void addTest() throws Exception {
         Mockito.when(userService.get(Mockito.anyLong())).thenReturn(user);
         Mockito.when(itemService.add(Mockito.any(Item.class))).thenReturn(item);
         mvc.perform(post("/items")
@@ -153,7 +153,7 @@ public class ItemControllerTests {
     }
 
     @Test
-    void update() throws Exception {
+    void updateTest() throws Exception {
         Mockito.when(userService.get(Mockito.anyLong())).thenReturn(user);
         Mockito.when(itemService.update(Mockito.any(Item.class))).thenReturn(item);
         mvc.perform(patch("/items/1")
@@ -172,7 +172,7 @@ public class ItemControllerTests {
     }
 
     @Test
-    void addComment() throws Exception {
+    void addCommentTest() throws Exception {
         Mockito.when(itemService.canUserComment(Mockito.anyLong(), Mockito.anyLong())).thenReturn(true);
         Mockito.when(userService.get(Mockito.anyLong())).thenReturn(user);
         Mockito.when(itemService.get(Mockito.anyLong())).thenReturn(item);
@@ -188,5 +188,40 @@ public class ItemControllerTests {
                 .andExpect(jsonPath("$.text", is(commentDto.getText())))
                 .andExpect(jsonPath("$.authorName", is(commentDto.getAuthorName())))
                 .andExpect(jsonPath("$.created", is(commentDto.getCreated().toString())));
+    }
+
+    @Test
+    void itemControllerThrowsCommentAccessViolationExceptionTest() throws Exception {
+        Mockito.when(itemService.canUserComment(Mockito.anyLong(), Mockito.anyLong())).thenReturn(false);
+        Mockito.when(userService.get(Mockito.anyLong())).thenReturn(user);
+        Mockito.when(itemService.get(Mockito.anyLong())).thenReturn(item);
+        Mockito.when(itemService.addComment(Mockito.any(Comment.class))).thenReturn(comment);
+        commentDto.setCreated(LocalDateTime.of(2023, 6, 17, 11, 0, 1));
+        mvc.perform(post("/items/1/comment")
+                        .header("X-Sharer-User-Id", 99)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(commentDto)))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error", is("Only booker can comment")));
+    }
+
+    @Test
+    void itemControllerThrowsCommentTextValidationExceptionTest() throws Exception {
+        Mockito.when(itemService.canUserComment(Mockito.anyLong(), Mockito.anyLong())).thenReturn(true);
+        Mockito.when(userService.get(Mockito.anyLong())).thenReturn(user);
+        Mockito.when(itemService.get(Mockito.anyLong())).thenReturn(item);
+        commentDto.setText("");
+        Mockito.when(itemService.addComment(Mockito.any(Comment.class))).thenReturn(comment);
+        commentDto.setCreated(LocalDateTime.of(2023, 6, 17, 11, 0, 1));
+        mvc.perform(post("/items/1/comment")
+                        .header("X-Sharer-User-Id", 1)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(commentDto)))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error", is("text can't be blank")));
     }
 }
