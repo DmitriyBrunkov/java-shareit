@@ -1,13 +1,14 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.exception.BookingNotFound;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.item.model.Item;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,55 +27,65 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getAllByBookerId(Long bookerId) {
-        return bookingRepository.findBookingsByBooker_IdOrderByStartDesc(bookerId);
+    public List<Booking> getAllByBookerId(Long bookerId, int from, int size) {
+        return bookingRepository.findBookingsByBooker_Id(bookerId, PageRequest.of(from > 0 ? from / size : 0, size,
+                Sort.by("start").descending())).toList();
     }
 
     @Override
-    public List<Booking> getAllByBookerIdFutureStart(Long bookerId) {
-        return bookingRepository.findBookingsByBooker_IdAndStartAfterOrderByStartDesc(bookerId, LocalDateTime.now());
+    public List<Booking> getAllByBookerIdFutureStart(Long bookerId, int from, int size) {
+        return bookingRepository.findBookingsByBooker_IdAndStartAfter(bookerId, LocalDateTime.now(), PageRequest.of(from > 0 ? from / size : 0, size,
+                Sort.by("start").descending())).toList();
     }
 
     @Override
-    public List<Booking> getAllByBookerIdPastEnd(Long bookerId) {
-        return bookingRepository.findBookingsByBooker_IdAndEndBeforeOrderByStartDesc(bookerId, LocalDateTime.now());
+    public List<Booking> getAllByBookerIdPastEnd(Long bookerId, int from, int size) {
+        return bookingRepository.findBookingsByBooker_IdAndEndBefore(bookerId, LocalDateTime.now(), PageRequest.of(from > 0 ? from / size : 0, size,
+                Sort.by("start").descending())).toList();
     }
 
     @Override
-    public List<Booking> getAllByBookerIdCurrent(Long bookerId) {
-        return bookingRepository.findBookingsByBooker_IdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId,
-                LocalDateTime.now(), LocalDateTime.now());
+    public List<Booking> getAllByBookerIdCurrent(Long bookerId, int from, int size) {
+        return bookingRepository.findBookingsByBooker_IdAndStartBeforeAndEndAfter(bookerId, LocalDateTime.now(),
+                LocalDateTime.now(), PageRequest.of(from > 0 ? from / size : 0, size, Sort.by("start")
+                        .descending())).toList();
     }
 
     @Override
-    public List<Booking> getAllByBookerIdAndStatus(Long bookerId, BookingStatus status) {
-        return bookingRepository.findBookingsByBooker_IdAndStatusOrderByStartDesc(bookerId, status);
+    public List<Booking> getAllByBookerIdAndStatus(Long bookerId, BookingStatus status, int from, int size) {
+        return bookingRepository.findBookingsByBooker_IdAndStatus(bookerId, status,
+                PageRequest.of(from > 0 ? from / size : 0, size, Sort.by("start").descending())).toList();
     }
 
     @Override
-    public List<Booking> getAllByItemList(List<Item> items) {
-        return bookingRepository.findBookingsByItemInOrderByStartDesc(items);
+    public List<Booking> getAllByItemList(List<Long> items, int from, int size) {
+        return bookingRepository.findBookingsByItem_IdIn(items, PageRequest.of(from > 0 ? from / size : 0, size,
+                Sort.by("start").descending())).toList();
     }
 
     @Override
-    public List<Booking> getAllByItemListFutureStart(List<Item> items) {
-        return bookingRepository.findBookingsByItemInAndStartAfterOrderByStartDesc(items, LocalDateTime.now());
+    public List<Booking> getAllByItemListFutureStart(List<Long> items, int from, int size) {
+        return bookingRepository.findBookingsByItem_IdInAndStartAfter(items, LocalDateTime.now(), PageRequest.of(from > 0 ? from / size : 0, size,
+                Sort.by("start").descending())).toList();
     }
 
     @Override
-    public List<Booking> getAllByItemListPastEnd(List<Item> items) {
-        return bookingRepository.findBookingsByItemInAndEndBeforeOrderByStartDesc(items, LocalDateTime.now());
+    public List<Booking> getAllByItemListPastEnd(List<Long> items, int from, int size) {
+        return bookingRepository.findBookingsByItem_IdInAndEndBefore(items, LocalDateTime.now(), PageRequest.of(from > 0 ? from / size : 0, size,
+                Sort.by("start").descending())).toList();
     }
 
     @Override
-    public List<Booking> getAllByItemListAndStatus(List<Item> items, BookingStatus status) {
-        return bookingRepository.findBookingsByItemInAndStatusOrderByStartDesc(items, status);
+    public List<Booking> getAllByItemListAndStatus(List<Long> items, BookingStatus status, int from, int size) {
+        return bookingRepository.findBookingsByItem_IdInAndStatus(items, status, PageRequest.of(from > 0 ? from / size : 0, size,
+                Sort.by("start").descending())).toList();
     }
 
     @Override
-    public List<Booking> getAllByItemListCurrent(List<Item> items) {
-        return bookingRepository.findBookingsByItemInAndStartBeforeAndEndAfterOrderByStartDesc(items,
-                LocalDateTime.now(), LocalDateTime.now());
+    public List<Booking> getAllByItemListCurrent(List<Long> items, int from, int size) {
+        return bookingRepository.findBookingsByItem_IdInAndStartBeforeAndEndAfter(items,
+                LocalDateTime.now(), LocalDateTime.now(), PageRequest.of(from > 0 ? from / size : 0, size,
+                        Sort.by("start").descending())).toList();
     }
 
     @Override

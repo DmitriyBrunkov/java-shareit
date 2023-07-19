@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.exception.EmailNotUnique;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -38,14 +37,14 @@ public class UserController {
 
     @PostMapping
     public UserDto add(@RequestBody @Validated(UserValidationGroups.Add.class) UserDto userDto)
-            throws UserNotFoundException, EmailNotUnique {
+            throws UserNotFoundException {
         log.info(this.getClass().getSimpleName() + ": POST: user: " + userDto);
         return UserMapper.toUserDto(userService.add(UserMapper.toUser(userDto)));
     }
 
     @PatchMapping("/{id}")
     public UserDto update(@PathVariable("id") Long id, @RequestBody @Validated UserDto userDto)
-            throws UserNotFoundException, EmailNotUnique {
+            throws UserNotFoundException {
         log.info(this.getClass().getSimpleName() + ": PATCH: user: " + userDto);
         userDto.setId(id);
         return UserMapper.toUserDto(userService.update(UserMapper.toUser(userDto)));

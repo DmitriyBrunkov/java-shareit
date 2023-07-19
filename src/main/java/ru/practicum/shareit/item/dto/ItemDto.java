@@ -19,5 +19,6 @@ public class ItemDto {
     @NotNull(groups = Add.class)
     @AssertTrue(groups = Add.class)
     private Boolean available;
+    private Long requestId;
     private Long owner;
 }

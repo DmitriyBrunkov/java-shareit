@@ -3,32 +3,31 @@ package ru.practicum.shareit.booking.service;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.exception.BookingNotFound;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
 
 public interface BookingService {
     Booking getById(Long id) throws BookingNotFound;
 
-    List<Booking> getAllByBookerId(Long bookerId);
+    List<Booking> getAllByBookerId(Long bookerId, int from, int size);
 
-    List<Booking> getAllByBookerIdFutureStart(Long bookerId);
+    List<Booking> getAllByBookerIdFutureStart(Long bookerId, int from, int size);
 
-    List<Booking> getAllByBookerIdPastEnd(Long bookerId);
+    List<Booking> getAllByBookerIdPastEnd(Long bookerId, int from, int size);
 
-    List<Booking> getAllByBookerIdCurrent(Long bookerId);
+    List<Booking> getAllByBookerIdCurrent(Long bookerId, int from, int size);
 
-    List<Booking> getAllByBookerIdAndStatus(Long bookerId, BookingStatus status);
+    List<Booking> getAllByBookerIdAndStatus(Long bookerId, BookingStatus status, int from, int size);
 
-    List<Booking> getAllByItemList(List<Item> items);
+    List<Booking> getAllByItemList(List<Long> items, int from, int size);
 
-    List<Booking> getAllByItemListFutureStart(List<Item> items);
+    List<Booking> getAllByItemListFutureStart(List<Long> items, int from, int size);
 
-    List<Booking> getAllByItemListPastEnd(List<Item> items);
+    List<Booking> getAllByItemListPastEnd(List<Long> items, int from, int size);
 
-    List<Booking> getAllByItemListAndStatus(List<Item> items, BookingStatus status);
+    List<Booking> getAllByItemListAndStatus(List<Long> items, BookingStatus status, int from, int size);
 
-    List<Booking> getAllByItemListCurrent(List<Item> items);
+    List<Booking> getAllByItemListCurrent(List<Long> items, int from, int size);
 
     Booking create(Booking booking);
 
